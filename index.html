@@ -1,368 +1,361 @@
-import React, { useState } from 'react';
-import { ShoppingBag, X, Plus, Minus, Menu, ChevronDown } from 'lucide-react';
-
-export default function WonderThemeStore() {
-  const [selectedSize, setSelectedSize] = useState('M');
-  const [selectedColor, setSelectedColor] = useState('Olive Green');
-  const [quantity, setQuantity] = useState(1);
-  const [cart, setCart] = useState([]);
-  const [showCart, setShowCart] = useState(false);
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
-
-  const product = {
-    name: "Premium Cotton T-Shirt",
-    description: "Crafted from 100% premium cotton for ultimate comfort and durability. Each piece is carefully designed with attention to detail.",
-    price: 1500,
-    originalPrice: 2500,
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    colors: [
-      { name: 'Olive Green', hex: '#4A5D3F' },
-      { name: 'Black', hex: '#000000' },
-      { name: 'White', hex: '#FFFFFF' },
-      { name: 'Navy', hex: '#1E3A5F' },
-      { name: 'Charcoal', hex: '#36454F' }
-    ],
-    features: [
-      'Premium 100% cotton fabric',
-      'Custom design printing available',
-      'Personalized message option',
-      'Pre-shrunk for perfect fit',
-      'Reinforced double stitching'
-    ]
-  };
-
-  const addToCart = () => {
-    const item = {
-      ...product,
-      selectedSize,
-      selectedColor,
-      quantity,
-      id: Date.now()
-    };
-    setCart([...cart, item]);
-    setShowCart(true);
-  };
-
-  const removeFromCart = (id) => {
-    setCart(cart.filter(item => item.id !== id));
-  };
-
-  const getTotalPrice = () => {
-    return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-  };
-
-  const orderViaWhatsApp = () => {
-    let message = "Hi! I'd like to order:\n\n";
-    cart.forEach((item, index) => {
-      message += `${index + 1}. ${item.name}\n`;
-      message += `   Size: ${item.selectedSize}\n`;
-      message += `   Color: ${item.selectedColor}\n`;
-      message += `   Quantity: ${item.quantity}\n`;
-      message += `   Price: Rs ${(item.price * item.quantity)}\n\n`;
-    });
-    message += `Total: Rs ${getTotalPrice()}`;
-    
-    const whatsappUrl = `https://wa.me/YOUR_PHONE_NUMBER?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-  };
-
-  const selectedColorObj = product.colors.find(c => c.name === selectedColor);
-
-  return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex-shrink-0">
-              <h1 className="text-xl font-light tracking-wider">PREMIUM TEES</h1>
-            </div>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-8">
-              <a href="#shop" className="text-sm tracking-wide hover:text-gray-600 transition">SHOP</a>
-              <a href="#about" className="text-sm tracking-wide hover:text-gray-600 transition">ABOUT</a>
-              <a href="#contact" className="text-sm tracking-wide hover:text-gray-600 transition">CONTACT</a>
-            </nav>
-
-            {/* Cart Icon */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setShowCart(!showCart)}
-                className="relative p-2 hover:bg-gray-50 rounded-full transition"
-              >
-                <ShoppingBag className="w-5 h-5" />
-                {cart.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-black text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                    {cart.length}
-                  </span>
-                )}
-              </button>
-              <button
-                onClick={() => setShowMobileMenu(!showMobileMenu)}
-                className="md:hidden"
-              >
-                <Menu className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium T-Shirt Store</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        header { 
+            background: white;
+            border-bottom: 1px solid #ddd;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        h1 { font-size: 24px; font-weight: 300; letter-spacing: 2px; }
+        .cart-btn {
+            background: black;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .cart-btn:hover { background: #333; }
+        .hero {
+            background: #f5f5f5;
+            padding: 80px 20px;
+            text-align: center;
+        }
+        .hero h2 { 
+            font-size: 48px;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+        .product-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            margin: 50px auto;
+            max-width: 1200px;
+            padding: 0 20px;
+        }
+        .product-image {
+            background: #f5f5f5;
+            padding: 50px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .tshirt-display {
+            width: 300px;
+            height: 350px;
+            margin: 0 auto;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 100px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: background-color 0.3s;
+        }
+        .product-info h3 { 
+            font-size: 32px;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+        .price {
+            font-size: 28px;
+            margin: 20px 0;
+        }
+        .old-price {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 20px;
+            margin-left: 10px;
+        }
+        .description {
+            color: #666;
+            margin: 20px 0;
+            line-height: 1.8;
+        }
+        .selector {
+            margin: 30px 0;
+        }
+        .selector label {
+            display: block;
+            font-size: 12px;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        .color-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .color-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .color-btn:hover { transform: scale(1.1); }
+        .color-btn.active { 
+            border: 3px solid black;
+            transform: scale(1.15);
+        }
+        .size-options {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .size-btn {
+            padding: 15px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .size-btn:hover { border-color: black; }
+        .size-btn.active {
+            background: black;
+            color: white;
+            border-color: black;
+        }
+        .quantity {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        .qty-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .qty-display {
+            font-size: 18px;
+            min-width: 30px;
+            text-align: center;
+        }
+        .add-to-cart {
+            width: 100%;
+            padding: 18px;
+            background: black;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            letter-spacing: 1px;
+            margin: 10px 0;
+        }
+        .add-to-cart:hover { background: #333; }
+        .whatsapp-btn {
+            width: 100%;
+            padding: 18px;
+            background: #25D366;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+        .whatsapp-btn:hover { background: #20BA5A; }
+        .features {
+            border-top: 1px solid #ddd;
+            padding-top: 30px;
+            margin-top: 30px;
+        }
+        .features h4 {
+            font-size: 12px;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+        .features ul {
+            list-style: none;
+        }
+        .features li {
+            color: #666;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        .features li:before {
+            content: "• ";
+            color: black;
+            margin-right: 8px;
+        }
+        footer {
+            background: #111;
+            color: white;
+            padding: 50px 20px;
+            margin-top: 80px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .product-section {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            .hero h2 { font-size: 32px; }
+            .tshirt-display {
+                width: 250px;
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>PREMIUM TEES</h1>
+            <button class="cart-btn" onclick="alert('Cart functionality ready!')">CART (0)</button>
         </div>
-      </header>
+    </header>
 
-      {/* Cart Drawer */}
-      {showCart && (
-        <>
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-40 z-50 transition-opacity"
-            onClick={() => setShowCart(false)}
-          />
-          <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white z-50 shadow-2xl transform transition-transform">
-            <div className="flex flex-col h-full">
-              <div className="flex items-center justify-between p-6 border-b">
-                <h2 className="text-lg font-light tracking-wide">SHOPPING BAG ({cart.length})</h2>
-                <button onClick={() => setShowCart(false)}>
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-6">
-                {cart.length === 0 ? (
-                  <p className="text-gray-500 text-center mt-8">Your bag is empty</p>
-                ) : (
-                  <div className="space-y-6">
-                    {cart.map((item) => (
-                      <div key={item.id} className="flex gap-4">
-                        <div className="w-24 h-24 bg-gray-100 rounded flex items-center justify-center flex-shrink-0">
-                          <span className="text-4xl">👕</span>
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-light">{item.name}</h3>
-                          <p className="text-sm text-gray-600 mt-1">
-                            {item.selectedColor} / {item.selectedSize}
-                          </p>
-                          <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
-                          <p className="font-light mt-2">Rs {item.price * item.quantity}</p>
-                          <button
-                            onClick={() => removeFromCart(item.id)}
-                            className="text-xs underline mt-2 text-gray-600 hover:text-black"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {cart.length > 0 && (
-                <div className="border-t p-6 space-y-4">
-                  <div className="flex justify-between text-lg">
-                    <span className="font-light">SUBTOTAL</span>
-                    <span className="font-light">Rs {getTotalPrice()}</span>
-                  </div>
-                  <button
-                    onClick={orderViaWhatsApp}
-                    className="w-full bg-black text-white py-4 rounded-none text-sm tracking-wide hover:bg-gray-900 transition"
-                  >
-                    CHECKOUT VIA WHATSAPP
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Hero Section */}
-      <section className="relative h-96 bg-gray-50 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <h1 className="text-5xl md:text-6xl font-light tracking-wide">Essential Basics</h1>
-          <p className="text-lg text-gray-600 font-light">Premium cotton, timeless design</p>
-        </div>
-      </section>
-
-      {/* Product Section */}
-      <section className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid md:grid-cols-2 gap-12 lg:gap-20">
-          {/* Product Images */}
-          <div className="space-y-4">
-            <div className="aspect-square bg-gray-50 flex items-center justify-center rounded">
-              <div className="relative w-full h-full flex items-center justify-center">
-                <div 
-                  className="w-80 h-96 rounded-lg shadow-lg flex items-center justify-center transition-colors"
-                  style={{ backgroundColor: selectedColorObj.hex }}
-                >
-                  <span className="text-8xl">👕</span>
-                </div>
-              </div>
-            </div>
-            
-            {/* Thumbnail Gallery */}
-            <div className="grid grid-cols-4 gap-2">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="aspect-square bg-gray-100 rounded cursor-pointer hover:opacity-75 transition flex items-center justify-center">
-                  <span className="text-2xl">👕</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Product Info */}
-          <div className="space-y-8">
-            <div>
-              <h1 className="text-3xl font-light tracking-wide mb-2">{product.name}</h1>
-              <div className="flex items-center gap-4">
-                <span className="text-2xl font-light">Rs {product.price}</span>
-                <span className="text-lg text-gray-400 line-through">Rs {product.originalPrice}</span>
-              </div>
-            </div>
-
-            <p className="text-gray-600 leading-relaxed font-light">{product.description}</p>
-
-            {/* Color Selection */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <label className="text-sm tracking-wide">COLOR</label>
-                <span className="text-sm text-gray-600">{selectedColor}</span>
-              </div>
-              <div className="flex gap-3">
-                {product.colors.map((color) => (
-                  <button
-                    key={color.name}
-                    onClick={() => setSelectedColor(color.name)}
-                    className={`w-12 h-12 rounded-full border-2 transition ${
-                      selectedColor === color.name
-                        ? 'border-black scale-110'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                    style={{ backgroundColor: color.hex }}
-                    title={color.name}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Size Selection */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <label className="text-sm tracking-wide">SIZE</label>
-                <button className="text-sm underline text-gray-600">Size guide</button>
-              </div>
-              <div className="grid grid-cols-5 gap-2">
-                {product.sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`py-3 border text-sm tracking-wide transition ${
-                      selectedSize === size
-                        ? 'border-black bg-black text-white'
-                        : 'border-gray-300 hover:border-black'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Quantity */}
-            <div>
-              <label className="text-sm tracking-wide block mb-3">QUANTITY</label>
-              <div className="flex items-center gap-4 w-32">
-                <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-10 border border-gray-300 flex items-center justify-center hover:border-black transition"
-                >
-                  <Minus className="w-4 h-4" />
-                </button>
-                <span className="text-lg font-light">{quantity}</span>
-                <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="w-10 h-10 border border-gray-300 flex items-center justify-center hover:border-black transition"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Add to Bag */}
-            <div className="space-y-3">
-              <button
-                onClick={addToCart}
-                className="w-full bg-black text-white py-4 text-sm tracking-wide hover:bg-gray-900 transition flex items-center justify-center gap-2"
-              >
-                <ShoppingBag className="w-5 h-5" />
-                ADD TO BAG — Rs {product.price * quantity}
-              </button>
-              <button
-                onClick={() => {
-                  addToCart();
-                  setTimeout(orderViaWhatsApp, 300);
-                }}
-                className="w-full border-2 border-green-600 text-green-600 py-4 text-sm tracking-wide hover:bg-green-50 transition"
-              >
-                BUY NOW VIA WHATSAPP
-              </button>
-            </div>
-
-            {/* Product Features */}
-            <div className="border-t pt-6">
-              <h3 className="text-sm tracking-wide mb-4">PRODUCT DETAILS</h3>
-              <ul className="space-y-2">
-                {product.features.map((feature, index) => (
-                  <li key={index} className="text-sm text-gray-600 font-light flex items-start gap-2">
-                    <span className="text-black mt-1">•</span>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t mt-20">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-sm tracking-wide mb-4">SHOP</h3>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="#" className="hover:text-black transition">New Arrivals</a></li>
-                <li><a href="#" className="hover:text-black transition">Best Sellers</a></li>
-                <li><a href="#" className="hover:text-black transition">Collections</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-sm tracking-wide mb-4">CUSTOMER CARE</h3>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="#" className="hover:text-black transition">Contact Us</a></li>
-                <li><a href="#" className="hover:text-black transition">Shipping Info</a></li>
-                <li><a href="#" className="hover:text-black transition">Returns</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-sm tracking-wide mb-4">ABOUT</h3>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="#" className="hover:text-black transition">Our Story</a></li>
-                <li><a href="#" className="hover:text-black transition">Sustainability</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-sm tracking-wide mb-4">FOLLOW US</h3>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="#" className="hover:text-black transition">Instagram</a></li>
-                <li><a href="#" className="hover:text-black transition">Facebook</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t mt-12 pt-8 text-center text-sm text-gray-600">
-            <p>© 2025 Premium Tees. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+    <div class="hero">
+        <h2>Essential Basics</h2>
+        <p style="color: #666; font-size: 18px;">Premium cotton, timeless design</p>
     </div>
-  );
-}
+
+    <div class="product-section">
+        <div class="product-image">
+            <div class="tshirt-display" id="tshirtDisplay" style="background-color: #4A5D3F;">
+                👕
+            </div>
+        </div>
+
+        <div class="product-info">
+            <h3>Premium Cotton T-Shirt</h3>
+            <div class="price">
+                Rs 1,500 <span class="old-price">Rs 2,500</span>
+            </div>
+            <p class="description">
+                Crafted from 100% premium cotton for ultimate comfort and durability. 
+                Each piece is carefully designed with attention to detail.
+            </p>
+
+            <div class="selector">
+                <label>COLOR: <span id="colorName">Olive Green</span></label>
+                <div class="color-options">
+                    <button class="color-btn active" style="background: #4A5D3F;" onclick="selectColor('#4A5D3F', 'Olive Green', this)"></button>
+                    <button class="color-btn" style="background: #000000;" onclick="selectColor('#000000', 'Black', this)"></button>
+                    <button class="color-btn" style="background: #FFFFFF; border-color: #999;" onclick="selectColor('#FFFFFF', 'White', this)"></button>
+                    <button class="color-btn" style="background: #1E3A5F;" onclick="selectColor('#1E3A5F', 'Navy', this)"></button>
+                    <button class="color-btn" style="background: #36454F;" onclick="selectColor('#36454F', 'Charcoal', this)"></button>
+                </div>
+            </div>
+
+            <div class="selector">
+                <label>SIZE</label>
+                <div class="size-options">
+                    <button class="size-btn" onclick="selectSize(this)">S</button>
+                    <button class="size-btn active" onclick="selectSize(this)">M</button>
+                    <button class="size-btn" onclick="selectSize(this)">L</button>
+                    <button class="size-btn" onclick="selectSize(this)">XL</button>
+                    <button class="size-btn" onclick="selectSize(this)">XXL</button>
+                </div>
+            </div>
+
+            <div class="selector">
+                <label>QUANTITY</label>
+                <div class="quantity">
+                    <button class="qty-btn" onclick="changeQty(-1)">-</button>
+                    <span class="qty-display" id="quantity">1</span>
+                    <button class="qty-btn" onclick="changeQty(1)">+</button>
+                </div>
+            </div>
+
+            <button class="add-to-cart" onclick="addToCart()">ADD TO BAG — Rs <span id="totalPrice">1,500</span></button>
+            <button class="whatsapp-btn" onclick="orderWhatsApp()">BUY NOW VIA WHATSAPP</button>
+
+            <div class="features">
+                <h4>PRODUCT DETAILS</h4>
+                <ul>
+                    <li>Premium 100% cotton fabric</li>
+                    <li>Custom design printing available</li>
+                    <li>Personalized message option</li>
+                    <li>Pre-shrunk for perfect fit</li>
+                    <li>Reinforced double stitching</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p style="font-size: 18px; margin-bottom: 10px;">PREMIUM TEES</p>
+        <p style="color: #999;">Quality T-Shirts with Custom Designs</p>
+        <p style="color: #666; margin-top: 20px;">© 2025 All Rights Reserved</p>
+    </footer>
+
+    <script>
+        // ⚠️ IMPORTANT: Replace with your WhatsApp number
+        // Example: "923001234567" (country code + number, no spaces)
+        const WHATSAPP_NUMBER = "YOUR_PHONE_NUMBER";
+
+        let selectedColorValue = '#4A5D3F';
+        let selectedColorText = 'Olive Green';
+        let selectedSize = 'M';
+        let quantity = 1;
+        const pricePerItem = 1500;
+
+        function selectColor(color, name, button) {
+            document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            document.getElementById('tshirtDisplay').style.backgroundColor = color;
+            document.getElementById('colorName').textContent = name;
+            selectedColorValue = color;
+            selectedColorText = name;
+        }
+
+        function selectSize(button) {
+            document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            selectedSize = button.textContent;
+        }
+
+        function changeQty(change) {
+            quantity = Math.max(1, quantity + change);
+            document.getElementById('quantity').textContent = quantity;
+            updatePrice();
+        }
+
+        function updatePrice() {
+            const total = pricePerItem * quantity;
+            document.getElementById('totalPrice').textContent = total.toLocaleString();
+        }
+
+        function addToCart() {
+            alert(`Added to cart!\n\nProduct: Premium Cotton T-Shirt\nColor: ${selectedColorText}\nSize: ${selectedSize}\nQuantity: ${quantity}\nTotal: Rs ${pricePerItem * quantity}`);
+        }
+
+        function orderWhatsApp() {
+            const message = `Hi! I'd like to order:\n\nPremium Cotton T-Shirt\nColor: ${selectedColorText}\nSize: ${selectedSize}\nQuantity: ${quantity}\nTotal: Rs ${pricePerItem * quantity}`;
+            
+            const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+    </script>
+</body>
+</html>
